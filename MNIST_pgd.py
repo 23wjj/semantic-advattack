@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-@author: hongwei zhang
-@contact: zhanghwei@sjtu.edu.cn
-@file: MNIST.py
-@time: 2021/12/29 21:36
-"""
+
 import torch
 from torchvision.datasets import mnist
 import torch.nn.functional as F
