@@ -135,7 +135,8 @@ for rate in range(1):
         pil_img = Image.fromarray(np.uint8(out))
         pil_img.save("pgd_attack/"+str(alpha)+"_alpha_"+str(epsilon)+"_epsilon/"+prefix+"/mnist_"+prefix+"_%d_%f.jpg" % (i, compression_rate))
 
-    def PGD(img, label, epsilon,alpha, mlp_encoder, mlp_mnist,device,iterations = 40):
+    def PGD(img, label, epsilon,alpha, mlp_encoder, mlp_mnist,device,iterations=40):
+        iterations=int(epsilon/alpha)
         mlp_encoder.eval()
         img = img.clone()     #取副本，不改动数据集
         img, label = img.to(device), label.to(device)
@@ -221,7 +222,7 @@ for rate in range(1):
         
         final_acc=correct/float(len(dataloader))
         print("Epsilon: {}\tattack Accuracy = {}/{}={}".format(epsilon,correct,len(dataloader),final_acc))
-        print("Average attack times: {}".format(attack_cnt))
+        print("Total attack times: {}".format(attack_cnt))
 
         # saving adversarial images and other attack data
         np.savez("pgd_attack/"+str(alpha)+"_alpha_"+str(epsilon)+"_epsilon/data/adv_pred.npz",init_preds=np.array(init_preds),final_preds=np.array(final_preds))
@@ -239,3 +240,4 @@ for rate in range(1):
     print('PGD: epsilon = '+str(epsilon)+'  alpha = '+str(alpha))
     attack(mlp_encoder,mlp_mnist,device,attack_data,epsilon,alpha)
     print('PGD: epsilon = '+str(epsilon)+'  alpha = '+str(alpha))
+
