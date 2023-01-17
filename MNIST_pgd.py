@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import argparse
+import os
 import torch
 from torchvision.datasets import mnist
 import torch.nn.functional as F
@@ -13,6 +15,12 @@ from torch import nn
 import scipy
 from torch.autograd import Variable
 from PIL import Image
+
+parser = argparse.ArgumentParser(description='pgd', conflict_handler='resolve')
+parser.add_argument('--alpha', type=float, default=0.01, metavar='')
+parser.add_argument('--epsilon', type=float, default=0.1, metavar='')
+
+args = parser.parse_args()
 
 raw_dim = 28 * 28  # shape of the raw image
 device = torch.device("cuda" if (torch.cuda.is_available()) else "cpu")
@@ -125,9 +133,9 @@ for rate in range(1):
     def plot(out,i,prefix,epsilon):
         out=data_inv_transform(out)
         pil_img = Image.fromarray(np.uint8(out))
-        pil_img.save("pgd_attack/"+str(alpha)+"_alpha/"+prefix+"/mnist_"+prefix+"_%d_%f.jpg" % (i, compression_rate))
+        pil_img.save("pgd_attack/"+str(alpha)+"_alpha_"+str(epsilon)+"_epsilon/"+prefix+"/mnist_"+prefix+"_%d_%f.jpg" % (i, compression_rate))
 
-    def PGD(img, label, epsilon,alpha, mlp_encoder, mlp_mnist,device,iterations = 10):
+    def PGD(img, label, epsilon,alpha, mlp_encoder, mlp_mnist,device,iterations = 40):
         mlp_encoder.eval()
         img = img.clone()     #取副本，不改动数据集
         img, label = img.to(device), label.to(device)
@@ -216,17 +224,18 @@ for rate in range(1):
         print("Average attack times: {}".format(attack_cnt))
 
         # saving adversarial images and other attack data
-        np.savez("pgd_attack/"+str(alpha)+"_alpha/data/adv_pred.npz",init_preds=np.array(init_preds),final_preds=np.array(final_preds))
-        np.savez("pgd_attack/"+str(alpha)+"_alpha/data/adv_example.npz",adv_examples=adv_examples)
-        np.savez("pgd_attack/"+str(alpha)+"_alpha/data/orig_example.npz",orig_examples=orig_examples)
-        np.savez("pgd_attack/"+str(alpha)+"_alpha/data/recover_example.npz",recover_examples=recover_img)
+        np.savez("pgd_attack/"+str(alpha)+"_alpha_"+str(epsilon)+"_epsilon/data/adv_pred.npz",init_preds=np.array(init_preds),final_preds=np.array(final_preds))
+        np.savez("pgd_attack/"+str(alpha)+"_alpha_"+str(epsilon)+"_epsilon/data/adv_example.npz",adv_examples=adv_examples)
+        np.savez("pgd_attack/"+str(alpha)+"_alpha_"+str(epsilon)+"_epsilon/data/orig_example.npz",orig_examples=orig_examples)
+        np.savez("pgd_attack/"+str(alpha)+"_alpha_"+str(epsilon)+"_epsilon/data/recover_example.npz",recover_examples=recover_img)
 
     epsilons = [0, .05, .1, .15, .2, .25, .3]
     epsilon = epsilons[0]
-    alpha=0.2
-    epsilon=0.2
+    alpha=args.alpha
+    epsilon=args.epsilon
     # print(next(mlp_encoder.parameters()).is_cuda)
     print('PGD Attacking Start')
     print('Under Compression Rate: ',compression_rate)
     print('PGD: epsilon = '+str(epsilon)+'  alpha = '+str(alpha))
     attack(mlp_encoder,mlp_mnist,device,attack_data,epsilon,alpha)
+    print('PGD: epsilon = '+str(epsilon)+'  alpha = '+str(alpha))
