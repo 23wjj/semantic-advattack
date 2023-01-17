@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import copy
 
+import copy
+import argparse
 # import pandas as pd
 import numpy as np
 import scipy
@@ -12,6 +13,10 @@ from torch import nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchvision.datasets import mnist
+
+parser = argparse.ArgumentParser(description='fgsm', conflict_handler='resolve')
+parser.add_argument('--epsilon', type=float, default=0.1, metavar='')
+args = parser.parse_args()
 
 raw_dim = 28 * 28  # shape of the raw image
 device = torch.device("cuda" if (torch.cuda.is_available()) else "cpu")
@@ -126,7 +131,7 @@ for rate in range(1):
         pil_img = Image.fromarray(np.uint8(out))
         pil_img.save("fgsm_attack/"+str(epsilon)+"_epsilon/"+prefix+"/mnist_"+prefix+"_%d_%f.jpg" % (i, compression_rate))
 
-    def FGSM(img, label, epsilon, mlp_encoder, mlp_mnist,device,iterations = 10):
+    def FGSM(img, label, epsilon, mlp_encoder, mlp_mnist,device,iterations = 1):
         mlp_encoder.eval()
         img = img.clone()     #取副本，不改动数据集
         img, label = img.to(device), label.to(device)
@@ -161,7 +166,7 @@ for rate in range(1):
 
         print("Total attack times: %d"%t)
         print("Prediction after attack:",pred.item())
-        return t,correct,init_pred,pred,img,out
+        return t+1,correct,init_pred,pred,img,out
 
     # load data
     trainset = mnist.MNIST('./dataset/mnist', train=True, transform=data_transform, download=True)
@@ -219,8 +224,8 @@ for rate in range(1):
         np.savez("fgsm_attack/"+str(epsilon)+"_epsilon/data/orig_example.npz",orig_examples=orig_examples)
         np.savez("fgsm_attack/"+str(epsilon)+"_epsilon/data/recover_example.npz",recover_examples=recover_img)
 
-    epsilons = [0, .05, .1, .15, .2, .25, .3]
-    epsilon = epsilons[0]
+    epsilons = [0, .05, .1, .15, .2, .25, .3, 0.35, 0.4]
+    epsilon = args.epsilon
     # print(next(mlp_encoder.parameters()).is_cuda)
     print('Attacking Start')
     print('Under Compression Rate: ',compression_rate)
