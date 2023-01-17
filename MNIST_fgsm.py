@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import copy
 import argparse
+import copy
+
 # import pandas as pd
 import numpy as np
 import scipy
@@ -131,7 +132,7 @@ for rate in range(1):
         pil_img = Image.fromarray(np.uint8(out))
         pil_img.save("fgsm_attack/"+str(epsilon)+"_epsilon/"+prefix+"/mnist_"+prefix+"_%d_%f.jpg" % (i, compression_rate))
 
-    def FGSM(img, label, epsilon, mlp_encoder, mlp_mnist,device,iterations = 1):
+    def FGSM(img, label, epsilon, mlp_encoder, mlp_mnist,device,iterations = 10):
         mlp_encoder.eval()
         img = img.clone()     #取副本，不改动数据集
         img, label = img.to(device), label.to(device)
@@ -216,7 +217,7 @@ for rate in range(1):
         
         final_acc=correct/float(len(dataloader))
         print("Epsilon: {}\tattack Accuracy = {}/{}={}".format(epsilon,correct,len(dataloader),final_acc))
-        print("Average attack times: {}".format(attack_cnt))
+        print("total attack times: {}".format(attack_cnt))
 
         # saving adversarial images and other attack data
         np.savez("fgsm_attack/"+str(epsilon)+"_epsilon/data/adv_pred.npz",init_preds=np.array(init_preds),final_preds=np.array(final_preds))
