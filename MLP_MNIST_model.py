@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-@author: hongwei zhang
-@contact: zhanghwei@sjtu.edu.cn
-@file: MLP_MNIST_model.py
-@time: 2021/12/15 20:38
-"""
+
 # train and save the MNIST classifier
 import torch
 import numpy as np
@@ -124,13 +119,6 @@ for e in range(20):
 # save the model
 torch.save(mlp.state_dict(), 'MLP_MNIST.pkl')
 
-# file = './results/MLP_MNIST_model/acc.csv'
-# data = pd.DataFrame(eval_acces)
-# data.to_csv(file, index=False)
-#
-# file = './results/MLP_MNIST_model/loss.csv'
-# data = pd.DataFrame(eval_losses)
-# data.to_csv(file, index=False)
 
 
 
